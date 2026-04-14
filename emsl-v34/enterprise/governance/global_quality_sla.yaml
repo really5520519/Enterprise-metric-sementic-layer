@@ -1,0 +1,19 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - SLA design for data platforms (Snowflake best practices, public)
+# - Data quality dimensions framework (DAMA-DMBOK2, Chapter 13)
+# - SRE principles: SLI/SLO/SLA (Google SRE Book, public online)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L6 Governance: Quality SLA (RULES — facts live in L1 quality/)
+global_sla:
+  freshness:
+    tier_1_critical:   { max_lag_minutes: 30 }
+    tier_2_standard:   { max_lag_minutes: 120 }
+    tier_3_analytical: { max_lag_minutes: 1440 }
+  completeness: { pk_null: 0, measure_null: 0.5, dim_null: 2.0 }

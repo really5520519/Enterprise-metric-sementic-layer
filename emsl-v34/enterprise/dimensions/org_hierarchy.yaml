@@ -1,0 +1,28 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Organizational design theory (Mintzberg, Structure in Fives, public academic)
+# - HR hierarchy modeling (SHRM body of knowledge, public summaries)
+# - Snowflake hierarchical dimension patterns (community.snowflake.com, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L3 Dimension: Organization Hierarchy
+dimension:
+  name: enterprise_org
+  type: hierarchical
+  shared: true
+  hierarchy:
+    levels:
+      - { order: 1, name: company, column: company_name }
+      - { order: 2, name: business_unit, column: bu_name, parent: company }
+      - { order: 3, name: department, column: dept_name, parent: business_unit }
+      - { order: 4, name: team, column: team_name, parent: department }
+  entity_ref: enterprise_dim_org
+  domain_join_protocol:
+    sales: "fact_sales.department_id = department_id"
+    finance: "fact_journal.cost_center_id = cost_center_id"
+    hr: "fact_workforce.department_id = department_id"

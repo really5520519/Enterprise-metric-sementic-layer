@@ -1,0 +1,25 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Business glossary management (DAMA-DMBOK2, Chapter 9)
+# - Controlled vocabulary design (W3C SKOS, public standard)
+# - Term disambiguation in NLP (Stanford NLP course, public materials)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L7 Knowledge: Enterprise Glossary (depends on L4 metric_ref)
+enterprise_glossary:
+  version: "1.0.0"
+  terms:
+    - term: revenue
+      aliases: ["income", "sales revenue"]
+      golden_definition: { authoritative_domain: finance, definition: "GAAP recognized revenue" }
+      domain_variants:
+        sales: { metric: net_revenue, note: "non-GAAP" }
+        finance: { metric: recognized_revenue, note: "GAAP" }
+    - term: headcount
+      aliases: ["HC", "employee count"]
+      golden_definition: { authoritative_domain: hr, definition: "Active FTE employees on payroll" }

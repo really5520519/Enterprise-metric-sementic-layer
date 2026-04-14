@@ -1,0 +1,33 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Balanced Scorecard methodology (Kaplan & Norton, HBS, 1992, public academic)
+# - North Star Metric framework (Amplitude blog, public)
+# - Cross-functional KPI design (McKinsey Quarterly, public articles)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L4 Metric: T1 Composite Schema (depends on T2+T3 + external)
+t1_composite:
+  tier: T1
+  label: "Composite business metric"
+  dependency: "T2+T3 + external_inputs + analytic_methods"
+  required: [name, formula, depends_on]
+  optional: [external_inputs, method_ref, persona]
+  optional_display:
+    - field: display_hint
+      type: object
+      properties:
+        chart_type: { type: string }
+        alert_direction: { type: string }
+        benchmark: { type: object, properties: { industry_median: number, top_quartile: number } }
+        drill_path: { type: array, items: string, description: "hierarchy to drill into" }
+        cross_domain_note: { type: string, description: "explain data provenance for federation metrics" }
+  examples:
+    - name: revenue_per_employee
+      formula: "sales.net_revenue / hr.headcount"
+      depends_on: [net_revenue, headcount]
+      cross_domain: true

@@ -1,0 +1,21 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - scikit-learn ML pipeline design (scikit-learn.org, public, BSD license)
+# - MLflow model registry concepts (mlflow.org, public, Apache 2.0)
+# - Feature store design patterns (Feast documentation, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L5 Method: Plugin Schema (depends on L1, L2, L4)
+analytic_method_schema:
+  required: [name, category, description]
+  category_enum: [analytics, forecasting, diagnostic, optimization, anomaly_detection]
+  optional:
+    - compatible_objects
+    - trigger_intents
+    - models
+    - output_format

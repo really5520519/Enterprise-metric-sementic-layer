@@ -1,0 +1,20 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Great Expectations data profiling (docs.greatexpectations.io, public, Apache 2.0)
+# - ISO 8000 Data Quality standard (ISO, public summary)
+# - Data Quality Assessment, Arkady Maydanchik (Technics Publications, 2007)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L1 Quality: Dataset Profile (FACT, not RULE)
+dataset_profile:
+  description: "Statistical profile per entity. This is observed state, not policy."
+  schema:
+    entity: { type: string, required: true }
+    row_count: { current: integer, previous: integer, change_pct: number }
+    null_rates: { type: array, items: { column: string, null_pct: number } }
+    anomaly_thresholds: { type: array, items: { column: string, rule: string } }

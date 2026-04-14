@@ -1,0 +1,13 @@
+Enterprise Semantic Metrics Layer (ESML)
+Copyright (c) 2026 [YOUR LEGAL ENTITY]
+
+This product is an independent work. It is not derived from,
+affiliated with, or endorsed by the Open Semantic Interchange
+(OSI) initiative or any of its member organizations.
+
+The ESML architecture (L0-L7 layering, T1/T2/T3 metric tiers,
+Progressive Federation, Adaptive Governance) is original design.
+
+License scope:
+  Code (.py, .yaml, .json): Apache License 2.0 — see LICENSE
+  Documentation (.md):      CC BY-SA 4.0 — see license-docs/LICENSE-docs

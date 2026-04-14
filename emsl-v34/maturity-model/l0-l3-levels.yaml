@@ -1,0 +1,41 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - CMMI Maturity Levels 1-5 (CMMI Institute, public methodology)
+# - Data Management Maturity Model (DAMA-DMBOK2, Chapter 2)
+# - Progressive rollout and feature flagging (Martin Fowler, public blog)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# ESML Maturity Model: Progressive Compliance Levels
+maturity_levels:
+  L0_bootstrap:
+    label: "Bootstrap"
+    requirements: ["manifest + extends", "1+ entity", "1+ T3 metric"]
+    unlocks: ["single-domain W6 query"]
+    governance_mode: skip
+    timeline: "Week 1"
+
+  L1_operational:
+    label: "Operational"
+    requirements: ["all L0", "+1 object", "+T2 metrics with depends_on", "+lineage", "+glossary 5+ terms"]
+    unlocks: ["cross-domain query (draft)", "enterprise glossary", "W3 audit"]
+    governance_mode: advisory
+    timeline: "Month 1-2"
+
+  L2_governed:
+    label: "Governed"
+    requirements: ["all L1", "+quality metadata (profile+freshness)", "+access policies", "+PII masking"]
+    unlocks: ["cross-domain query (production)", "heartbeat monitoring", "W7 governance"]
+    governance_mode: enforced_warn
+    timeline: "Month 3-6"
+
+  L3_excellence:
+    label: "Excellence"
+    requirements: ["all L2", "+analytic methods", "+disambiguation + vector search", "+full lineage", "+promotion flow"]
+    unlocks: ["enterprise featuring", "shared dimension contributor", "glossary contributor"]
+    governance_mode: enforced_strict
+    timeline: "Month 6-12"

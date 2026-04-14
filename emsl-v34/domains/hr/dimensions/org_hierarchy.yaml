@@ -1,0 +1,21 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Organizational hierarchy modeling (Kimball Group design tips, public)
+# - Parent-child dimension patterns (Analysis Services documentation, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+dimension:
+  name: hr_org_hierarchy
+  type: hierarchical
+  hierarchy:
+    levels:
+      - { order: 1, name: business_unit, column: bu_name }
+      - { order: 2, name: department, column: dept_name, parent: business_unit }
+      - { order: 3, name: team, column: team_name, parent: department }
+  entity_ref: dim_department
+  shared_ref: "enterprise/dimensions/org_hierarchy.yaml"

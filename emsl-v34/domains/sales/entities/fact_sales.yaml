@@ -1,0 +1,29 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Ecommerce data warehouse design (Kimball Group, public articles)
+# - Order management data model (Shopify/Stripe API docs, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+entity:
+  name: fact_sales
+  type: fact
+  warehouse_layer: DWS
+  database: PROD_DB
+  schema_name: DWS_SALES
+  table_name: FACT_SALES_D
+  columns:
+    - { name: order_id, data_type: "VARCHAR(64)", is_pk: true }
+    - { name: order_date, data_type: DATE, partition: true }
+    - { name: customer_id, data_type: "VARCHAR(32)" }
+    - { name: product_id, data_type: "VARCHAR(32)" }
+    - { name: channel_id, data_type: "VARCHAR(16)" }
+    - { name: department_id, data_type: "VARCHAR(16)" }
+    - { name: gmv, data_type: "DECIMAL(18,2)" }
+    - { name: refund_amount, data_type: "DECIMAL(18,2)" }
+  lineage: { upstream: [{ entity: "ods.raw_orders", transform: "cleanse_deduplicate" }] }
+  quality: { freshness: { update_mode: incremental, schedule: "0 2 * * *", sla_tier: tier_1_critical } }

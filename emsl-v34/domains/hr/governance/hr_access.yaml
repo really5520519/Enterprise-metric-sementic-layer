@@ -1,0 +1,27 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - GDPR data protection for employee data (EUR-Lex, public law)
+# - CCPA employee data provisions (CA DOJ, public)
+# - Row-level security patterns (Snowflake docs, public)
+# - Data masking techniques (NIST SP 800-188, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+access_policies:
+  inherits: "../../enterprise/governance/classification_standards.yaml"
+  pii_masking:
+    - { column: employee_name, policy: redact }
+    - { column: email, policy: email_mask }
+    - { column: id_number, policy: hash }
+    - { column: base_salary, policy: redact }
+    - { column: total_comp, policy: redact }
+  row_level_security:
+    - { entity: fact_workforce, condition: "region_code IN (SELECT r FROM user_region_access WHERE user=CURRENT_USER())" }
+  role_permissions:
+    - { role: hr_admin, allowed_metrics: ["*"], pii_access: true }
+    - { role: analyst, allowed_metrics: [headcount, fte_count, attrition_rate], pii_access: false }
+    - { role: executive, allowed_metrics: [headcount, attrition_rate, labor_cost_per_employee], pii_access: false }

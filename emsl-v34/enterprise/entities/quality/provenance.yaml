@@ -1,0 +1,21 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - W3C PROV Data Model (w3.org/TR/prov-dm, public standard)
+# - Data provenance and lineage concepts (DAMA-DMBOK2, Chapter 8)
+# - GDPR Article 30: Records of processing activities (EUR-Lex, public law)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L1 Quality: Data Provenance
+provenance:
+  schema:
+    entity: { type: string, required: true }
+    source_system: { type: string, required: true }
+    created_by: string
+    updated_by: string
+    business_time_column: string
+    system_time_column: string

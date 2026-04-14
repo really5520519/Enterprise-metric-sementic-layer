@@ -1,0 +1,19 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Semantic Versioning 2.0.0 (semver.org, public standard)
+# - GitOps for data: version-controlled analytics (Thoughtworks Technology Radar, public)
+# - Schema evolution patterns (Confluent documentation, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L1 Quality: Entity Versioning
+versioning:
+  schema:
+    entity: { type: string, required: true }
+    status: { type: string, enum: [dev, test, production] }
+    is_latest: { type: boolean }
+    deprecation_date: { type: string, nullable: true }

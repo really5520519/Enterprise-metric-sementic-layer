@@ -1,0 +1,128 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+
+# Knowledge sources:
+# - IFRS 15 / ASC 606 Revenue Recognition (IASB/FASB, public summaries)
+# - IFRS 10 Consolidated Financial Statements (IASB, public standard)
+# - CFA Institute glossary (cfainstitute.org, public)
+# - Intercompany elimination (Hoyle Advanced Accounting, public textbook)
+# - Data storytelling (Knaflic, Storytelling with Data, public textbook)
+#
+# This file contains NO proprietary information from any employer or client.
+
+domain_glossary:
+  domain: finance
+  terms:
+    - term: recognized_revenue
+      aliases: ["GAAP revenue", "ASC 606 revenue"]
+      is_golden: true
+      definition: "Revenue recognized per ASC 606 five-step model"
+      accounting_standard:
+        current: { standard: ASC_606, effective_date: "2018-01-01" }
+        prior: { standard: ASC_605, note: "risks-and-rewards model, not comparable without restatement" }
+        comparability: "When comparing periods across ASC 605/606 boundary, use restated figures or disclose methodology change."
+
+    - term: EBITDA
+      aliases: ["earnings before interest tax depreciation amortization"]
+      definition: "Non-GAAP earnings measure"
+      accounting_note: "Not standardized. Each company may include/exclude different items. Always check company-specific definition."
+
+    - term: ROE
+      aliases: ["return on equity"]
+      definition: "DuPont composite: net_profit_margin x asset_turnover x equity_multiplier"
+      causal_note: "NOT an independent metric. Changing any factor changes ROE. Use DuPont decomposition for root cause."
+
+    - term: intercompany_elimination
+      aliases: ["IC elimination", "consolidation adjustment"]
+      definition: "Removal of internal transactions between entities within the same reporting group"
+
+  accounting_standards:
+    revenue_recognition:
+      standard: ASC_606
+      full_name: "Revenue from Contracts with Customers"
+      issuer: FASB
+      effective: "2018-01-01"
+      key_principle: "Recognize revenue when control transfers to customer, in the amount of consideration expected"
+      five_steps:
+        - "Identify contract with customer"
+        - "Identify performance obligations"
+        - "Determine transaction price (variable consideration, time value, non-cash)"
+        - "Allocate transaction price to performance obligations"
+        - "Recognize revenue when (or as) performance obligation is satisfied"
+      impact_on_metrics:
+        recognized_revenue: "Only revenue meeting all 5 steps is recognized. Deferred revenue is excluded."
+        comparability: "Pre-2018 data uses ASC 605. Apply transition adjustment for YoY comparison."
+      common_pitfalls:
+        - "SaaS: multi-element arrangements require allocation across performance obligations"
+        - "Long-term contracts: over-time vs point-in-time recognition affects quarterly patterns"
+        - "Variable consideration: estimated discounts/rebates must be constrained"
+
+    lease_accounting:
+      standard: ASC_842
+      impact: "Operating leases now on balance sheet — affects total_assets and equity_multiplier in DuPont"
+
+  industry_constraints:
+    cross_period_comparability:
+      rule: "When an accounting standard changes, metrics spanning the boundary must disclose the standard version"
+      example: "Revenue Q1-2017 (ASC 605) vs Revenue Q1-2018 (ASC 606) — not directly comparable"
+      resolution: "Tag each metric value with applicable_standard field. Query engine warns on cross-standard comparison."
+      implementation:
+        metric_level: "Each T3/T2 metric can carry accounting_standard.version"
+        query_level: "Query engine checks if time_range spans a standard boundary and adds warning"
+
+  consolidation_rules:
+    principle: "Group-level metrics are NOT simple SUM of subsidiaries"
+    hierarchy:
+      - { level: subsidiary, aggregation: direct, note: "Standalone figures" }
+      - { level: business_unit, aggregation: "sum_with_ic_elimination", note: "Eliminate intra-BU transactions" }
+      - { level: group, aggregation: "sum_with_full_elimination", note: "Eliminate all intercompany + minority interest adjustment" }
+    elimination_types:
+      - type: revenue_elimination
+        description: "Subsidiary A sells to Subsidiary B — remove from both revenue and COGS at group level"
+        rule: "WHERE transaction.counterparty_entity IN (SELECT entity_id FROM consolidation_scope)"
+        example: "Tech division sells $5M license to Retail division — eliminate $5M from group revenue AND $5M from group COGS"
+      - type: receivable_payable_netting
+        description: "Intercompany AR/AP must net to zero at group level"
+        rule: "SUM(ic_receivable) - SUM(ic_payable) = 0 per counterparty pair"
+      - type: intercompany_profit_elimination
+        description: "Unrealized profit on intercompany inventory/asset transfers"
+        rule: "Eliminate profit margin on goods still held by purchasing entity at period end"
+      - type: minority_interest
+        description: "Non-controlling interest share of subsidiary P&L"
+        rule: "net_income * (1 - ownership_pct) attributed to minority"
+    implementation_note: "Consolidation is a GOVERNANCE rule (L6), not a metric formula (L4). The query engine applies elimination CTE when consolidation_scope includes multiple entities."
+
+  storylines:
+    - name: revenue_performance
+      label: "Revenue performance review"
+      trigger_intents: ["revenue report", "financial performance", "quarterly earnings"]
+      narrative_arc: periodic_review
+      steps:
+        - { step: 1, query: {metric: recognized_revenue, comparison: qoq}, display: scorecard }
+        - { step: 2, query: {metric: recognized_revenue, dimensions: [time], grain: quarter, span: 8}, display: line_chart }
+        - { step: 3, query: {metric: recognized_revenue, dimensions: [cost_center]}, display: bar_chart, sort: desc }
+        - { step: 4, query: {metric: ebitda, dimensions: [time]}, display: line_chart }
+        - { step: 5, type: highlights, auto_detect: [biggest_change, yoy_comparison] }
+
+    - name: profitability_deep_dive
+      label: "Profitability analysis (DuPont)"
+      trigger_intents: ["margin analysis", "profitability", "why did ROE change", "DuPont"]
+      narrative_arc: problem_diagnosis
+      steps:
+        - { step: 1, query: {metric: return_on_equity, comparison: qoq}, display: scorecard }
+        - { step: 2, method_ref: "analytic_methods/dupont#three_factor", display: waterfall_chart }
+        - { step: 3, query: {metrics: [net_profit_margin, asset_turnover, equity_multiplier], dimensions: [time]}, display: multi_line }
+        - { step: 4, drill_into: "most_changed_factor", display: sub_driver_tree }
+        - { step: 5, type: recommendations }
+
+    - name: consolidation_review
+      label: "Group consolidation check"
+      trigger_intents: ["consolidation review", "IC elimination", "intercompany check"]
+      narrative_arc: deep_dive
+      steps:
+        - { step: 1, query: {metric: recognized_revenue, dimensions: [entity], scope: pre_elimination}, display: bar_chart }
+        - { step: 2, query: {dimension: counterparty_pair, metric: ic_transaction_volume}, display: heatmap }
+        - { step: 3, compare: {pre_elimination_total: "sum of all entities", post_elimination_total: "consolidated"}, display: waterfall }
+        - { step: 4, check: "ic_receivable_payable_netting = 0", display: validation_table }

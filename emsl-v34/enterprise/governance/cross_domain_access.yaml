@@ -1,0 +1,20 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - RBAC model (NIST SP 800-162, public standard)
+# - Attribute-Based Access Control (NIST SP 800-205, public)
+# - Data mesh domain ownership principles (Zhamak Dehghani, public talks)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L6 Governance: Cross-Domain Access (consumes Identity)
+access_policy:
+  default: deny_unless_granted
+  role_matrix:
+    executive:          { allowed_domains: ["*"], operations: [query, audit] }
+    domain_owner:       { allowed_domains: ["own", "cross_domain"], operations: [query, audit, contribute] }
+    analyst:            { allowed_domains: ["own"], cross_domain: "aggregated_only" }
+    finance_controller: { allowed_domains: ["*"], purpose: "reconciliation" }

@@ -1,0 +1,17 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Data mesh self-serve platform principles (Zhamak Dehghani, public)
+# - Developer experience (DevEx) research (ACM Queue, public academic)
+# - Scaffold/generator patterns (Ruby on Rails, Yeoman — public, MIT/BSD)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L6 [M2] Domain Enablement
+enablement:
+  scaffold: { tool: "esml_scaffold.py", description: "DB schema to ESML auto-generation" }
+  mapping_wizard: { description: "Existing BI metrics to ESML format" }
+  compliance_advisor: { workflow: W11, description: "Current level + upgrade checklist" }

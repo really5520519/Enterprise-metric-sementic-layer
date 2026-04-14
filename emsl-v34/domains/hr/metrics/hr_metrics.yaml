@@ -1,0 +1,88 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - HR metrics handbook (SHRM/ANSI Z10.2-2014 Cost-of-Turnover standard, public)
+# - People analytics KPIs (Josh Bersin research, public reports)
+# - Headcount vs FTE definition (Bureau of Labor Statistics, public)
+# - Attrition rate calculation methods (CIPD factsheets, public)
+# - Data visualization best practices (Few, Show Me the Numbers, public textbook)
+#
+# This file contains NO proprietary information from any employer or client.
+
+metric_group: { name: hr_metrics, domain: hr }
+
+t3_atomic:
+  - name: headcount
+    aggregation_expression: "COUNT(DISTINCT CASE WHEN status='active' AND employment_type='FTE' THEN employee_id END)"
+    source_entity: fact_workforce
+    display_format: count
+    display_hint:
+      chart_type: time_series
+      alert_direction: context_dependent
+      sparkline: true
+      comparison_periods: [mom, qoq, yoy]
+
+  - name: fte_count
+    aggregation_expression: "SUM(CASE WHEN status='active' THEN fte_factor ELSE 0 END)"
+    source_entity: fact_workforce
+    display_format: count
+    display_hint:
+      chart_type: time_series
+      sparkline: true
+
+  - name: new_hires
+    aggregation_expression: "COUNT(DISTINCT CASE WHEN hire_date >= period_start THEN employee_id END)"
+    source_entity: fact_workforce
+    display_format: count
+    display_hint:
+      chart_type: bar_chart
+      alert_direction: up_is_good
+      comparison_periods: [mom, qoq]
+
+  - name: terminations
+    aggregation_expression: "COUNT(DISTINCT CASE WHEN termination_date BETWEEN period_start AND period_end THEN employee_id END)"
+    source_entity: fact_workforce
+    display_format: count
+    display_hint:
+      chart_type: bar_chart
+      alert_direction: up_is_bad
+      comparison_periods: [mom, qoq]
+
+  - name: total_labor_cost
+    aggregation_expression: "SUM(total_labor_cost)"
+    source_entity: fact_labor_cost
+    display_format: currency
+    display_hint:
+      chart_type: time_series
+      alert_direction: context_dependent
+      comparison_periods: [qoq, yoy]
+
+t2_derived:
+  - name: attrition_rate
+    formula: "terminations / headcount"
+    depends_on: [terminations, headcount]
+    display_format: percentage
+    display_hint:
+      chart_type: time_series
+      alert_direction: up_is_bad
+      benchmark:
+        good_below: 0.08
+        warning_above: 0.12
+        critical_above: 0.20
+      comparison_periods: [mom, qoq, yoy]
+      sparkline: true
+
+  - name: labor_cost_per_employee
+    formula: "total_labor_cost / headcount"
+    depends_on: [total_labor_cost, headcount]
+    display_format: currency
+    display_hint:
+      chart_type: bar_chart
+      sort: descending
+      alert_direction: context_dependent
+      comparison_periods: [qoq, yoy]
+      benchmark:
+        tech_industry_median: 25000

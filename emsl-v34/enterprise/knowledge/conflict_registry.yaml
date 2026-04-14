@@ -1,0 +1,68 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+
+# Knowledge sources:
+# - Semantic conflict resolution patterns (data integration literature, public academic)
+# - Master Data Management conflict handling (DAMA-DMBOK2, Chapter 10)
+# - Ontology alignment techniques (W3C OWL, public standard)
+#
+# This file contains NO proprietary information from any employer or client.
+
+conflict_registry:
+  version: "1.1.0"
+  scan_frequency: weekly
+  scanner_tool: "esml_contribution_scanner.py"
+
+  active_conflicts:
+    - conflict_id: CONF-001
+      term: customer
+      status: active
+      severity: high
+      domains_involved: [sales, marketing]
+      description: "sales defines 'customer' as buyer with completed order. marketing defines 'customer' as registered user with verified identity."
+      impact: "Cross-domain query 'customer acquisition cost' produces different results depending on which domain's definition is used."
+      discovered_date: "2026-02-15"
+      assigned_to: chief_data_steward
+      proposed_resolution: "Split into 'customer' (sales, purchase-based) and 'user' (marketing, registration-based)"
+      resolution_deadline: "2026-06-01"
+
+    - conflict_id: CONF-002
+      term: cost
+      status: active
+      severity: medium
+      domains_involved: [finance, hr]
+      description: "finance 'cost' includes depreciation and amortization. hr 'labor_cost' is cash-basis (salary+bonus+benefits) excluding stock-based compensation in some calculations."
+      impact: "Workforce cost optimization skill may undercount true labor cost if using hr.labor_cost instead of finance-adjusted figure."
+      proposed_resolution: "hr.labor_cost includes SBC by default. Create hr.cash_labor_cost for cash-only view."
+
+  resolved_conflicts:
+    - conflict_id: CONF-R001
+      term: revenue
+      status: resolved
+      resolution: "finance owns golden definition (GAAP ASC 606). sales.net_revenue renamed and tagged as non-GAAP."
+      resolution_date: "2026-01-15"
+      resolved_by: chief_data_steward
+      implementation:
+        - "sales/metrics: renamed 'revenue' to 'net_revenue'"
+        - "sales/knowledge: added deviation_from_enterprise note"
+        - "enterprise/knowledge/golden_definitions: revenue assigned to finance"
+
+    - conflict_id: CONF-R002
+      term: headcount
+      status: resolved
+      resolution: "hr owns golden definition (active FTE on payroll). finance.fte_count is a DERIVED metric that adds contractor fraction."
+      resolution_date: "2026-01-20"
+      resolved_by: chief_data_steward
+      reconciliation_formula: "fte_count = headcount + SUM(contractor.fte_factor)"
+
+  resolution_strategy:
+    primary: domain_context_first
+    fallback: ask_user
+    rules:
+      - "If user query mentions a specific domain, use that domain's definition"
+      - "If no domain context, use golden_definition from authoritative domain"
+      - "If term is in active_conflicts, ask user to disambiguate"
+      - "If user says 'revenue' without context, use finance.recognized_revenue (golden)"
+      - "If user says 'revenue' in sales context, use sales.net_revenue"

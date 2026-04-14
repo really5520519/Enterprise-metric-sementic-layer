@@ -1,0 +1,31 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - KPI design: leading vs lagging indicators (Balanced Scorecard, Kaplan & Norton)
+# - Derived metric patterns in Looker/LookML (cloud.google.com/looker, public docs)
+# - Metric dependency DAG concepts (dbt docs, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L4 Metric: T2 Derived Schema (depends on T3)
+t2_derived:
+  tier: T2
+  label: "Derived metric"
+  dependency: "depends_on T3 only"
+  required: [name, formula, depends_on]
+  validation: ["depends_on must only reference T3 names", "no circular deps"]
+  optional:
+    - field: display_hint
+      type: object
+      properties:
+        chart_type: { type: string, enum: [time_series, bar_chart, scatter, heatmap, donut] }
+        alert_direction: { type: string, enum: [up_is_good, up_is_bad, context_dependent] }
+        benchmark: { type: object }
+        comparison_periods: { type: array }
+        sort: { type: string, enum: [ascending, descending, alphabetical] }
+  examples:
+    - { name: net_revenue,    formula: "total_gmv - refund_amount",  depends_on: [total_gmv, refund_amount] }
+    - { name: attrition_rate, formula: "terminations / headcount",   depends_on: [terminations, headcount] }

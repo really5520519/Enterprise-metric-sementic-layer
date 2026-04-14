@@ -1,0 +1,20 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - XGBoost algorithm (Chen & Guestrin, 2016, public academic paper, KDD)
+# - Prophet time series forecasting (Facebook/Meta, 2017, public, MIT license)
+# - Workforce planning models (SHRM toolkit, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+analytic_method:
+  name: hr_forecasting
+  category: forecasting
+  compatible_objects: [employee]
+  trigger_intents: ["attrition risk", "workforce demand"]
+  models:
+    - { name: attrition_model, algorithm: xgboost, target: is_terminated_90d, horizon: 90 }
+    - { name: demand_forecast, algorithm: prophet, target: headcount_demand, horizon: 90 }

@@ -1,0 +1,39 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Workday HCM data model (Workday Community, public documentation)
+# - HRIS data warehouse design (SHRM/IHRIM, public conference materials)
+# - SCD Type 2 for employee records (Kimball Group, public articles)
+#
+# This file contains NO proprietary information from any employer or client.
+
+entity:
+  name: fact_workforce
+  type: fact
+  warehouse_layer: DWS
+  database: PROD_DB
+  schema_name: DWH_HR
+  table_name: FACT_WORKFORCE_MONTHLY
+  columns:
+    - { name: snapshot_month, data_type: DATE, is_pk: false, partition: true }
+    - { name: employee_id, data_type: "VARCHAR(32)", is_pk: true }
+    - { name: department_id, data_type: "VARCHAR(16)" }
+    - { name: job_level_id, data_type: "VARCHAR(8)" }
+    - { name: region_code, data_type: "VARCHAR(8)" }
+    - { name: business_line, data_type: "VARCHAR(16)", description: "C_APP / B_ENTERPRISE" }
+    - { name: employment_type, data_type: "VARCHAR(16)", description: "FTE / CONTRACTOR / INTERN" }
+    - { name: status, data_type: "VARCHAR(16)", description: "active / on_leave / terminated" }
+    - { name: hire_date, data_type: DATE }
+    - { name: termination_date, data_type: DATE, nullable: true }
+    - { name: base_salary, data_type: "DECIMAL(18,2)", classification: L4_RESTRICTED }
+    - { name: total_comp, data_type: "DECIMAL(18,2)", classification: L4_RESTRICTED }
+    - { name: currency_code, data_type: "VARCHAR(3)" }
+    - { name: fte_factor, data_type: "DECIMAL(4,2)", description: "1.0=full-time" }
+  lineage:
+    upstream: [{ entity: "ods.hris_employees", transform: "incremental_merge_scd" }]
+  quality:
+    freshness: { update_mode: full_load, schedule: "0 5 * * *", sla_tier: tier_2_standard }
+    provenance: { source_system: "Workday HCM v38" }

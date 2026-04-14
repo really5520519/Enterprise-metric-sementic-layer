@@ -1,0 +1,19 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Circuit breaker pattern (Michael Nygard, Release It!, public concept)
+# - Graceful degradation in distributed systems (Google SRE Book, public)
+# - Data freshness degradation tiers (Monte Carlo blog, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L6 [M3] Graceful Degradation
+degradation:
+  freshness_violation:
+    - { condition: "lag < 2x SLA",  action: warn_and_serve }
+    - { condition: "lag < 5x SLA",  action: serve_with_caveat, notify: [steward] }
+    - { condition: "lag >= 5x SLA", action: block_with_alternative, create_incident: true }
+  access_violation: { action: partial_result }

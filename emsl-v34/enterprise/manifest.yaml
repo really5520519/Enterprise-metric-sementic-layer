@@ -1,0 +1,38 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Twelve-Factor App methodology (12factor.net, public)
+# - Snowflake documentation: Warehouses and Environments (docs.snowflake.com, public)
+# - dbt project configuration best practices (docs.getdbt.com, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# ESML v3.3 Enterprise Shared Layer Manifest
+esml_manifest:
+  version: "3.4.0"
+  name: "enterprise_enterprise_shared"
+  description: "Enterprise semantic metrics foundation"
+  environment: production
+
+  environments:
+    dev:        { warehouse: "DEV_WH",   database: "DEV_DB" }
+    staging:    { warehouse: "STG_WH",   database: "STG_DB" }
+    production: { warehouse: "PROD_WH",  database: "PROD_DB" }
+
+  defaults:
+    sql_dialect: SNOWFLAKE
+    freshness_sla_minutes: 60
+    null_threshold_pct: 5.0
+
+  display_hint_spec:
+    version: "1.0"
+    levels:
+      chart:     { location: "L4 metrics", scope: "single metric output shape" }
+      dashboard: { location: "L2 objects", scope: "multi-metric spatial composition" }
+      storyline: { location: "L7 knowledge", scope: "cross-metric temporal narrative" }
+    enforcement: optional
+    note: "All display_hint fields are suggestions, never requirements. Consumers may ignore them."
+

@@ -1,0 +1,17 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Data stewardship roles and responsibilities (DAMA-DMBOK2, Chapter 3)
+# - RACI matrix for data governance (public methodology)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# Cross-cutting: Data Stewards
+stewards:
+  - { domain: sales,   name: "Zhang San", contact: "zhangsan@acme.com" }
+  - { domain: finance, name: "Li Si",     contact: "lisi@acme.com" }
+  - { domain: hr,      name: "Wang Wu",   contact: "wangwu@acme.com" }
+  chief_steward: { name: "Zhao Liu", contact: "zhaoliu@acme.com" }

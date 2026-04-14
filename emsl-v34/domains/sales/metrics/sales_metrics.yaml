@@ -1,0 +1,59 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - GMV/AOV/refund rate definitions (industry standard ecommerce KPIs, public)
+# - Revenue metrics (Shopify/Stripe documentation, public)
+# - Ecommerce analytics (public industry patterns)
+#
+# This file contains NO proprietary information from any employer or client.
+
+metric_group: { name: sales_metrics, domain: sales }
+
+t3_atomic:
+  - name: total_gmv
+    aggregation_expression: "SUM(gmv)"
+    source_entity: fact_sales
+    display_format: currency
+    display_hint:
+      chart_type: time_series
+      alert_direction: up_is_good
+      sparkline: true
+
+  - name: refund_amount
+    aggregation_expression: "SUM(refund_amount)"
+    source_entity: fact_sales
+    display_format: currency
+    display_hint:
+      chart_type: time_series
+      alert_direction: up_is_bad
+      sparkline: true
+
+  - name: order_count
+    aggregation_expression: "COUNT(DISTINCT order_id)"
+    source_entity: fact_sales
+    display_format: count
+    display_hint:
+      chart_type: bar_chart
+      sparkline: true
+
+t2_derived:
+  - name: net_revenue
+    formula: "total_gmv - refund_amount"
+    depends_on: [total_gmv, refund_amount]
+    display_format: currency
+    display_hint:
+      chart_type: time_series
+      alert_direction: up_is_good
+      comparison_periods: [mom, qoq, yoy]
+
+  - name: aov
+    formula: "net_revenue / order_count"
+    depends_on: [net_revenue, order_count]
+    display_format: currency
+    display_hint:
+      chart_type: bar_chart
+      alert_direction: up_is_good
+      sort: descending

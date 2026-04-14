@@ -1,0 +1,46 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Domain-Driven Design, Eric Evans (Addison-Wesley, 2003) — aggregate root pattern
+# - Object-Centric Data Management, Wil van der Aalst (Springer, 2022)
+# - Data Vault 2.0 hub/link/satellite patterns (Dan Linstedt, public methodology)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L2 Object: Enterprise Template (depends on L0 + L1)
+object_template:
+  required_sections:
+    entity_binding:
+      primary: { type: string, description: "ref to L1 entity" }
+      enrichments: { type: array, items: { entity: string, join_key: string } }
+    metric_refs:
+      type: array
+      items: { ref: { type: string, pattern: "^metrics/.*#.*$" } }
+  optional_sections:
+    dashboard_hint:
+      type: object
+      description: "Multi-metric spatial composition for this business object"
+      properties:
+        title_template: { type: string, default: "{object_name} overview" }
+        refresh_grain: { type: string, enum: [realtime, hourly, daily, weekly] }
+        sections:
+          type: array
+          items:
+            section: { type: string }
+            layout: { type: string, enum: [scorecard_row, chart_row, chart_single, table, funnel_section] }
+            metrics: { type: array, items: { ref: string, comparison: string } }
+            items: { type: array, items: { metric: string, dimensions: array, chart: string } }
+        drill_paths:
+          type: object
+          description: "Click behavior definitions"
+          properties:
+            scorecard_click: string
+            bar_click: string
+            table_row_click: string
+
+    behaviors: { type: array, items: { trigger: string, method_ref: string } }
+    properties: { type: array, items: { name: string, data_type: string, pii: boolean } }
+    relationships: { type: array, items: { target: string, rel_type: string, cardinality: string } }

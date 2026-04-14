@@ -1,0 +1,19 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Data Warehouse Toolkit, 3rd Ed., Ralph Kimball (Wiley, 2013) — fact/dimension classification
+# - Domain-Driven Design, Eric Evans (Addison-Wesley, 2003) — entity/value object patterns
+# - HL7 FHIR Resource Types (hl7.org, public standard) — event-based entity modeling
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L0 Ontology: Entity Classes
+entity_classes:
+  - { name: TransactionEvent, label: "Transaction event", time_bound: true, aggregatable: true }
+  - { name: MasterData,       label: "Master data",       scd_applicable: true }
+  - { name: ReferenceData,    label: "Reference data" }
+  - { name: ProcessEvent,     label: "Process event",     state_machine: true }
+  - { name: FinancialRecord,  label: "Financial record",  audit_required: true }

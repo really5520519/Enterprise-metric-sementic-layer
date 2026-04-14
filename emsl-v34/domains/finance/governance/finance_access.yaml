@@ -1,0 +1,45 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+
+# Knowledge sources:
+# - SOX Section 302/404 access controls (SEC, public law)
+# - ISO 27001 financial data classification (public summary)
+# - IFRS 10 consolidation scope (IASB, public standard)
+#
+# This file contains NO proprietary information from any employer or client.
+
+access_policies:
+  inherits: "../../enterprise/governance/classification_standards.yaml"
+
+  domain_classification:
+    fact_journal_entries: L3_CONFIDENTIAL
+    fact_balance_sheet: L3_CONFIDENTIAL
+    fact_income_statement: L3_CONFIDENTIAL
+    dim_account: L2_INTERNAL
+
+  role_permissions:
+    - { role: finance_controller, allowed_metrics: ["*"], classification: [L1,L2,L3] }
+    - { role: analyst, allowed_metrics: [recognized_revenue, ebitda], classification: [L1,L2] }
+    - { role: executive, allowed_metrics: [recognized_revenue, ebitda, return_on_equity], classification: [L1,L2] }
+
+  consolidation_governance:
+    scope_definition:
+      rule: "All entities where ownership >= 50% are in consolidation scope"
+      exceptions: "Joint ventures (20-50%) use equity method, not full consolidation"
+    elimination_enforcement:
+      mode: enforced
+      check_at: query_time
+      behavior: "If query requests group-level revenue and consolidation scope has IC transactions, automatically apply elimination CTE"
+    audit_trail:
+      pre_elimination_amount: logged
+      elimination_amount: logged
+      post_elimination_amount: logged
+      approver: finance_controller
+
+  accounting_standard_enforcement:
+    cross_period_warning:
+      enabled: true
+      behavior: "If time_range spans ASC 605/606 boundary (2018-01-01), attach warning to result"
+      warning_text: "This query spans an accounting standard change. Pre-2018 revenue used ASC 605, post-2018 uses ASC 606. Results may not be directly comparable."

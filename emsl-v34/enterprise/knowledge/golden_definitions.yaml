@@ -1,0 +1,74 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+
+# Knowledge sources:
+# - Single source of truth concept (DAMA-DMBOK2, Chapter 10)
+# - Golden record patterns in MDM (public methodology)
+# - Semantic conflict resolution (data integration literature, public academic)
+#
+# This file contains NO proprietary information from any employer or client.
+
+golden_definitions:
+  version: "1.1.0"
+  governance_authority: chief_data_steward
+  arbitration_principle: "The domain that ORIGINATES the data owns the golden definition"
+
+  definitions:
+    - term: revenue
+      authoritative_domain: finance
+      metric_ref: "domains/finance/metrics/financial_metrics#recognized_revenue"
+      golden_definition: "GAAP recognized revenue per ASC 606 five-step model"
+      accounting_standard: ASC_606
+      rationale: "Finance is the system of record for revenue recognition. Sales has net_revenue (non-GAAP) which is a different metric, not a competing definition."
+      domain_variants:
+        sales:
+          metric: net_revenue
+          definition: "GMV minus refunds — non-GAAP, operational metric"
+          relationship_to_golden: "net_revenue is a SUPERSET of recognized_revenue (includes revenue not yet recognized)"
+          reconciliation: "recognized_revenue = net_revenue - deferred_revenue_change - contract_liability_change"
+        marketing:
+          metric: attributed_revenue
+          definition: "Revenue attributed to marketing campaigns"
+          relationship_to_golden: "SUBSET — attributed_revenue <= recognized_revenue"
+
+    - term: headcount
+      authoritative_domain: hr
+      metric_ref: "domains/hr/metrics/hr_metrics#headcount"
+      golden_definition: "Active FTE employees on company payroll, excluding contractors and interns"
+      rationale: "HR owns the employee master data (Workday). All other systems consume employee status from HR."
+      semantic_constraints:
+        point_in_time: true
+        snapshot_grain: monthly
+        default_snapshot: period_end
+      domain_variants:
+        finance:
+          metric: fte_count
+          definition: "Full-time equivalent — includes contractor FTE at prorated factor"
+          relationship_to_golden: "fte_count >= headcount (adds contractor fraction)"
+          reconciliation: "fte_count = headcount + SUM(contractor.fte_factor)"
+          use_case: "Cost allocation requires fte_count because contractors consume resources"
+
+    - term: customer
+      status: under_review
+      candidates:
+        - { domain: sales, definition: "Individual or entity that completed at least one purchase", metric: "customer_count" }
+        - { domain: marketing, definition: "Registered user with verified identity", metric: "registered_users" }
+      resolution_in_progress:
+        proposal: "sales owns 'customer' (commercial relationship), marketing owns 'user' (account relationship)"
+        review_date: "2026-06-01"
+        assigned_to: chief_data_steward
+
+  arbitration_process:
+    trigger: "When two domains claim ownership of the same term with incompatible definitions"
+    steps:
+      - step: 1
+        action: "Both domains submit formal definition with metric_ref, formula, and use_case"
+      - step: 2
+        action: "Chief data steward evaluates: which domain ORIGINATES the data?"
+      - step: 3
+        action: "If clear originator: assign golden def. If both originate (rare): create two distinct terms."
+      - step: 4
+        action: "Losing domain renames their metric (e.g., 'revenue' in sales becomes 'net_revenue') and adds deviation_from_golden"
+    timeline: "30 days from submission to resolution"

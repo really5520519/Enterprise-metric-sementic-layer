@@ -1,0 +1,20 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - RBAC model (NIST SP 800-162, public standard)
+# - Data governance roles (DAMA-DMBOK2, Chapter 3 — steward/custodian/owner)
+# - Tech company job levels (levels.fyi, public aggregated data)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# Cross-cutting: Identity Roles
+roles:
+  - { name: executive,          level: C_suite,  cross_domain: true,  pii_access: false }
+  - { name: domain_owner,       level: VP,       cross_domain: true,  pii_access: false }
+  - { name: analyst,            level: IC,       cross_domain: limited, pii_access: false }
+  - { name: data_engineer,      level: IC,       cross_domain: true,  pii_access: false }
+  - { name: hr_admin,           level: IC,       cross_domain: false, pii_access: true, pii_scope: [hr] }
+  - { name: finance_controller, level: Manager,  cross_domain: true,  pii_access: false }

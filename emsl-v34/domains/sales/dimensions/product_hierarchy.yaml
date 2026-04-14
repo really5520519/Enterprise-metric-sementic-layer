@@ -1,0 +1,21 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Product hierarchy design (GS1 Global Product Classification, public standard)
+# - SCD Type 2 for product attributes (Kimball Group, public articles)
+#
+# This file contains NO proprietary information from any employer or client.
+
+dimension:
+  name: product_hierarchy
+  type: hierarchical
+  scd_type: 2
+  hierarchy:
+    levels:
+      - { order: 1, name: category_l1, column: category_l1_name }
+      - { order: 2, name: brand, column: brand_name, parent: category_l1 }
+      - { order: 3, name: sku, column: sku_id, parent: brand }
+  entity_ref: dim_product

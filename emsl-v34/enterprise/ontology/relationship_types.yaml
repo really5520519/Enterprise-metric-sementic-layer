@@ -1,0 +1,21 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - UML 2.5.1 Specification (OMG, public standard) — association/composition/aggregation
+# - Chen's Entity-Relationship Model (ACM, 1976, public academic paper)
+# - Graph Data Modeling patterns (Neo4j documentation, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L0 Ontology: Relationship Types
+relationship_types:
+  - { name: placed_by,     from: TransactionEvent, to: MasterData,       cardinality: many_to_one }
+  - { name: contains,      from: TransactionEvent, to: ReferenceData,    cardinality: many_to_many }
+  - { name: attributed_to, from: TransactionEvent, to: ProcessEvent,     cardinality: many_to_one }
+  - { name: employs,       from: MasterData,       to: MasterData,       cardinality: one_to_many }
+  - { name: reports_to,    from: MasterData,       to: MasterData,       cardinality: many_to_one }
+  - { name: records_for,   from: FinancialRecord,  to: TransactionEvent, cardinality: many_to_one }
+  - { name: belongs_to,    from: FinancialRecord,  to: ReferenceData,    cardinality: many_to_one }

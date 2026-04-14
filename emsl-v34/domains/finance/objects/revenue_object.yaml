@@ -1,0 +1,33 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - IFRS 15 / ASC 606 Revenue Recognition (IASB/FASB, public standard summaries)
+# - Revenue data modeling (CFA Level II, Financial Reporting chapter)
+#
+# This file contains NO proprietary information from any employer or client.
+
+object: { name: revenue, domain: finance, ontology_class: FinancialRecord }
+entity_binding: { primary: fact_journal_entries, enrichments: [{ entity: dim_account, join_key: account_id }] }
+metric_refs: [metrics/financial_metrics#recognized_revenue, metrics/financial_metrics#ebitda]
+
+  dashboard_hint:
+    title_template: "Financial overview: revenue and profitability"
+    refresh_grain: daily
+    sections:
+      - section: summary
+        layout: scorecard_row
+        metrics:
+          - { ref: recognized_revenue, label: "Revenue (GAAP)", comparison: qoq }
+          - { ref: ebitda, label: "EBITDA", comparison: qoq }
+      - section: trends
+        layout: chart_row
+        items:
+          - { metric: recognized_revenue, dimensions: [time], grain: quarter, chart: line_chart }
+          - { metric: ebitda, dimensions: [time], grain: quarter, chart: line_chart }
+      - section: breakdown
+        layout: chart_single
+        items:
+          - { metric: recognized_revenue, dimensions: [cost_center], chart: bar_chart, sort: desc }

@@ -1,0 +1,115 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+
+# Knowledge sources:
+# - IFRS 15 / ASC 606 Revenue Recognition (IASB/FASB, public standard summaries)
+# - EBITDA calculation methodology (CFA Level I, Financial Analysis chapter)
+# - DuPont decomposition (public domain methodology, 1920s)
+# - Apple Inc. 10-K FY2025 (SEC EDGAR, public filing) — line item reference
+#
+# This file contains NO proprietary information from any employer or client.
+
+metric_group: { name: financial_metrics, domain: finance }
+
+t3_atomic:
+  - name: total_debit
+    aggregation_expression: "SUM(debit_amount)"
+    source_entity: fact_journal_entries
+    display_format: currency
+    display_hint: { chart_type: time_series, sparkline: true }
+
+  - name: total_credit
+    aggregation_expression: "SUM(credit_amount)"
+    source_entity: fact_journal_entries
+    display_format: currency
+    display_hint: { chart_type: time_series, sparkline: true }
+
+  - name: total_assets
+    aggregation_expression: "SUM(CASE WHEN account_type='asset' THEN balance END)"
+    source_entity: fact_balance_sheet
+    display_format: currency
+
+  - name: shareholders_equity
+    aggregation_expression: "SUM(CASE WHEN account_type='equity' THEN balance END)"
+    source_entity: fact_balance_sheet
+    display_format: currency
+
+  - name: net_income
+    aggregation_expression: "SUM(CASE WHEN account_type='income' THEN amount END) - SUM(CASE WHEN account_type='expense' THEN amount END)"
+    source_entity: fact_income_statement
+    display_format: currency
+
+t2_derived:
+  - name: recognized_revenue
+    label: "Recognized revenue (GAAP ASC 606)"
+    formula: "total_credit WHERE account_class = 'revenue' AND recognition_criteria_met = true"
+    depends_on: [total_credit]
+    display_format: currency
+    accounting_standard:
+      standard: ASC_606
+      version: "2018 amendment"
+      five_step_model:
+        step_1: "Identify the contract"
+        step_2: "Identify performance obligations"
+        step_3: "Determine transaction price"
+        step_4: "Allocate price to obligations"
+        step_5: "Recognize when obligation satisfied"
+      comparability_note: "Pre-ASC 606 revenue used ASC 605 (risks-and-rewards model). Direct comparison requires restatement."
+    display_hint:
+      chart_type: time_series
+      alert_direction: up_is_good
+      comparison_periods: [qoq, yoy]
+      sparkline: true
+
+  - name: ebitda
+    label: "EBITDA"
+    formula: "recognized_revenue - operating_expenses + depreciation + amortization"
+    depends_on: [recognized_revenue]
+    display_format: currency
+    accounting_note: "Non-GAAP measure. Not defined by IFRS or US GAAP. Company-specific adjustments vary."
+    display_hint:
+      chart_type: time_series
+      alert_direction: up_is_good
+      benchmark: { margin_healthy_above: 0.15 }
+      comparison_periods: [qoq, yoy]
+
+  - name: net_profit_margin
+    label: "Net profit margin (DuPont factor 1)"
+    formula: "net_income / recognized_revenue"
+    depends_on: [net_income, recognized_revenue]
+    display_format: percentage
+    causal_tree_ref: "analytic_methods/dupont#net_profit_margin"
+    display_hint: { chart_type: time_series, alert_direction: up_is_good }
+
+  - name: asset_turnover
+    label: "Asset turnover (DuPont factor 2)"
+    formula: "recognized_revenue / total_assets"
+    depends_on: [recognized_revenue, total_assets]
+    display_format: ratio
+    causal_tree_ref: "analytic_methods/dupont#asset_turnover"
+    display_hint: { chart_type: time_series, alert_direction: up_is_good }
+
+  - name: equity_multiplier
+    label: "Equity multiplier (DuPont factor 3)"
+    formula: "total_assets / shareholders_equity"
+    depends_on: [total_assets, shareholders_equity]
+    display_format: ratio
+    causal_tree_ref: "analytic_methods/dupont#equity_multiplier"
+    display_hint: { chart_type: time_series, alert_direction: context_dependent }
+
+t1_composite:
+  - name: return_on_equity
+    label: "ROE (DuPont composite)"
+    formula: "net_profit_margin * asset_turnover * equity_multiplier"
+    depends_on: [net_profit_margin, asset_turnover, equity_multiplier]
+    decomposition: multiplicative
+    method_ref: "analytic_methods/dupont#three_factor"
+    display_format: percentage
+    display_hint:
+      chart_type: time_series
+      alert_direction: up_is_good
+      benchmark: { tech_industry_median: 0.18, top_quartile: 0.25 }
+      drill_path: [net_profit_margin, asset_turnover, equity_multiplier]
+      note: "Click to decompose into three DuPont factors"

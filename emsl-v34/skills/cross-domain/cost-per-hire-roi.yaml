@@ -1,0 +1,32 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Cost-per-hire standard (SHRM/ANSI Z10.1-2016, public standard)
+# - Recruiting ROI methodology (SHRM toolkit, public)
+# - Cross-functional metric design (Balanced Scorecard, public methodology)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# Cross-domain Skill: Cost Per Hire ROI
+cross_domain_skill:
+  name: cost_per_hire_roi
+  label: "Cost-Per-Hire ROI Analysis"
+  domains: [finance, hr]
+  description: "Calculate and benchmark the cost-effectiveness of hiring by comparing recruiting spend to new hire productivity."
+  formula: "(new_hire_productivity_12m - recruiting_cost_per_hire) / recruiting_cost_per_hire"
+  sources:
+    - { domain: finance, metric: recruiting_spend, role: cost }
+    - { domain: hr, metric: new_hires, role: volume }
+    - { domain: sales, metric: net_revenue, role: productivity_proxy }
+  join_dimension: enterprise_org
+  join_level: department
+  grain: [quarter, year]
+  display_hint:
+    primary_chart: grouped_bar
+    axes: { x: department, y: [cost_per_hire, new_hire_productivity] }
+    benchmark: { industry_avg_cost: 4700, source: "SHRM 2025 survey" }
+    storyline_integration: "Can be step 5 in workforce_health_review storyline"
+  trigger_intents: ["hiring ROI", "cost per hire", "recruiting effectiveness"]

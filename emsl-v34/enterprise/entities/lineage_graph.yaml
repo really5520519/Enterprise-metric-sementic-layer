@@ -1,0 +1,23 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - OpenLineage Specification v1.0 (openlineage.io, public, Apache 2.0)
+# - Data lineage and impact analysis patterns (DAMA-DMBOK2, Chapter 8)
+# - Apache Atlas data governance and lineage (atlas.apache.org, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L1 Entity: Lineage Graph
+lineage_graph:
+  edge_types:
+    upstream:   { fields: [entity, transform, warehouse_layer] }
+    downstream: { fields: [entity, consumer] }
+  join_path_cache:
+    description: "Pre-built at setup time by Accelerator"
+    schema: { name: string, tables: array, join_sql: string, used_by_metrics: array }
+  integrity_rules:
+    - "upstream warehouse_layer N must be N-1 or lower"
+    - "no circular dependencies"

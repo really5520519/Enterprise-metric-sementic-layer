@@ -1,0 +1,38 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Labor cost efficiency metrics (WorldatWork, public frameworks)
+# - Revenue per employee benchmarks (public SaaS metrics, OpenBenchmarking)
+# - Workforce optimization (McKinsey Quarterly, public articles)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# Cross-domain Skill: Workforce Cost Optimization
+cross_domain_skill:
+  name: workforce_cost_optimization
+  label: "Workforce Cost Optimization"
+  domains: [finance, hr]
+  description: "Identify departments where labor cost growth outpaces revenue growth. Suggest rebalancing actions."
+  metrics_needed:
+    - { domain: hr, metric: total_labor_cost }
+    - { domain: hr, metric: headcount }
+    - { domain: sales, metric: net_revenue }
+  computed:
+    - { name: labor_cost_to_revenue, formula: "hr.total_labor_cost / sales.net_revenue" }
+    - { name: labor_cost_growth, formula: "hr.total_labor_cost.period_over_period_pct" }
+    - { name: revenue_growth, formula: "sales.net_revenue.period_over_period_pct" }
+    - { name: efficiency_gap, formula: "labor_cost_growth - revenue_growth" }
+  display_hint:
+    primary_chart: scatter
+    axes: { x: labor_cost_per_employee, y: revenue_per_employee, size: headcount }
+    quadrant_labels:
+      top_right: "High cost, high output — efficient"
+      bottom_right: "High cost, low output — investigate"
+      top_left: "Low cost, high output — star performers"
+      bottom_left: "Low cost, low output — growing teams"
+    storyline_integration: "Step 5 in cost_efficiency_analysis storyline"
+  trigger_intents: ["workforce optimization", "labor cost efficiency", "headcount vs revenue"]
+  output: ranked_table_by_efficiency_gap

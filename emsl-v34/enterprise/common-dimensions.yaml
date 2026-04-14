@@ -1,0 +1,20 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Conformed dimension concept (Kimball Group, public articles)
+# - Shared dimension design patterns (Data Warehouse Toolkit, Kimball, 2013)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# ESML Enterprise Shared Layer: Common Dimensions Index
+common_dimensions:
+  - { name: enterprise_time, ref: "dimensions/time_dimension.yaml", shared: true }
+  - { name: enterprise_org,  ref: "dimensions/org_hierarchy.yaml",  shared: true }
+  - { name: enterprise_geo,  ref: "dimensions/geo_hierarchy.yaml",  shared: true }
+  domain_join_protocols:
+    sales:   { time: "order_date",    org: "department_id" }
+    finance: { time: "posting_date",  org: "cost_center_id" }
+    hr:      { time: "snapshot_month", org: "department_id" }

@@ -1,0 +1,19 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - InnerSource patterns (InnerSource Commons, innersourcecommons.org, public)
+# - RFC/proposal workflow (IETF process, public)
+# - Data mesh federated governance feedback loops (Zhamak Dehghani, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L6 [M4] Feedback Loop
+contribution:
+  proposal_types:
+    shared_dimension:    { trigger: "used_by >= 3 domains", auto: true }
+    glossary_term:       { trigger: "new term not in enterprise", auto: true }
+    metric_challenge:    { trigger: "disagree with golden def", auto: false }
+  scan_frequency: weekly

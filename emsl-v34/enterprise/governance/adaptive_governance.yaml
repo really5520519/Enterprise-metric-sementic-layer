@@ -1,0 +1,18 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Risk-based governance matrix (COSO ERM Framework, public summary)
+# - Adaptive governance in complex systems (Ostrom, public academic)
+# - Tiered enforcement patterns (DAMA-DMBOK2, Chapter 3)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L6 [M5] Adaptive Governance
+governance_matrix:
+  #               L0_bootstrap  L1_operational  L2_governed   L3_excellence
+  T1_composite:   advisory      enforced_warn   enforced      enforced_strict
+  T2_derived:     skip          advisory        enforced_warn enforced
+  T3_atomic:      skip          skip            advisory      enforced_warn

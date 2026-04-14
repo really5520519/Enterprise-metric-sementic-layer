@@ -1,0 +1,38 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Ecommerce KPI definitions (industry standard, public)
+# - GAAP vs non-GAAP revenue distinction (SEC guidance, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+domain_glossary:
+  domain: sales
+  terms:
+    - { term: GMV, aliases: ["gross merchandise volume"], metric_ref: "metrics/sales_metrics#total_gmv" }
+  storylines:
+    - name: sales_performance_review
+      label: "Sales performance deep dive"
+      trigger_intents: ["sales report", "revenue analysis", "how are sales doing"]
+      narrative_arc: periodic_review
+      steps:
+        - { step: 1, query: {metric: net_revenue, comparison: mom}, display: scorecard }
+        - { step: 2, query: {metric: net_revenue, dimensions: [time], grain: day, span: 30}, display: line_chart }
+        - { step: 3, query: {metric: net_revenue, dimensions: [channel]}, display: donut }
+        - { step: 4, query: {metric: aov, dimensions: [product_category]}, display: bar_chart, sort: desc }
+        - { step: 5, type: highlights, auto_detect: [top_product, fastest_growing_channel, anomaly] }
+
+    - name: refund_investigation
+      label: "Refund rate investigation"
+      trigger_intents: ["why are refunds high", "refund analysis"]
+      narrative_arc: problem_diagnosis
+      steps:
+        - { step: 1, query: {metric: refund_rate}, display: scorecard }
+        - { step: 2, query: {metric: refund_rate, dimensions: [time], grain: week}, display: line_chart }
+        - { step: 3, query: {metric: refund_amount, dimensions: [product_category]}, display: bar_chart, sort: desc }
+        - { step: 4, type: recommendations }
+
+    - { term: net_revenue, aliases: ["net sales"], deviation_from_enterprise: "non-GAAP" }

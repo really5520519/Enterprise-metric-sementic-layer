@@ -1,0 +1,105 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+
+# Knowledge sources:
+# - DuPont Analysis (DuPont Corporation, 1920s, public domain methodology)
+# - ROE decomposition (CFA Level II, Equity Valuation chapter)
+# - Causal metric trees (Balanced Scorecard, Kaplan & Norton, public methodology)
+#
+# This file contains NO proprietary information from any employer or client.
+
+analytic_method:
+  name: dupont_decomposition
+  label: "DuPont ROE decomposition"
+  category: diagnostic
+  description: "Causal metric tree — ROE is the PRODUCT of three factors, not the SUM."
+
+  trigger_intents:
+    - "ROE decomposition"
+    - "DuPont analysis"
+    - "why did ROE change"
+    - "profitability drivers"
+
+  causal_tree:
+    root:
+      metric: return_on_equity
+      formula: "net_profit_margin * asset_turnover * equity_multiplier"
+      decomposition_type: multiplicative
+      note: "This is NOT three independent composites. Changing one factor affects ROE directly."
+
+    branches:
+      - name: net_profit_margin
+        formula: "net_income / revenue"
+        tier: T2
+        depends_on: [net_income, recognized_revenue]
+        interpretation: "How much profit per dollar of revenue"
+        alert_direction: up_is_good
+        sub_drivers:
+          - { name: gross_margin, formula: "gross_profit / revenue" }
+          - { name: operating_expense_ratio, formula: "opex / revenue", alert_direction: up_is_bad }
+          - { name: tax_rate, formula: "tax_expense / pre_tax_income" }
+
+      - name: asset_turnover
+        formula: "revenue / total_assets"
+        tier: T2
+        depends_on: [recognized_revenue, total_assets]
+        interpretation: "How efficiently assets generate revenue"
+        alert_direction: up_is_good
+
+      - name: equity_multiplier
+        formula: "total_assets / shareholders_equity"
+        tier: T2
+        depends_on: [total_assets, shareholders_equity]
+        interpretation: "Financial leverage — higher = more debt"
+        alert_direction: context_dependent
+        risk_note: "Higher leverage amplifies ROE but increases risk"
+
+  analysis_workflow:
+    - step: 1
+      action: "Calculate current ROE and its three factors"
+      display: waterfall_chart
+
+    - step: 2
+      action: "Compare each factor to prior period"
+      display: grouped_bar
+      interpretation:
+        margin_decline: "Profitability problem — check gross margin and opex ratio"
+        turnover_decline: "Efficiency problem — assets growing faster than revenue"
+        leverage_increase: "Leverage problem — debt increasing, check debt/equity ratio"
+
+    - step: 3
+      action: "Drill into the declining factor's sub-drivers"
+      display: tree_decomposition
+
+  display_hint:
+    primary: waterfall_chart
+    alternative: [tree_diagram, stacked_bar]
+    note: "Waterfall shows multiplicative contribution. Tree shows causal structure."
+
+  models:
+    - name: three_factor
+      type: sql
+      logic: |
+        SELECT
+          net_income / NULLIF(revenue, 0) AS net_profit_margin,
+          revenue / NULLIF(total_assets, 0) AS asset_turnover,
+          total_assets / NULLIF(shareholders_equity, 0) AS equity_multiplier,
+          (net_income / NULLIF(revenue, 0))
+          * (revenue / NULLIF(total_assets, 0))
+          * (total_assets / NULLIF(shareholders_equity, 0)) AS roe
+        FROM finance_summary
+        WHERE period = :period
+
+    - name: five_factor
+      type: sql
+      description: "Extended DuPont: adds tax burden and interest burden"
+      logic: |
+        SELECT
+          net_income / NULLIF(ebt, 0) AS tax_burden,
+          ebt / NULLIF(ebit, 0) AS interest_burden,
+          ebit / NULLIF(revenue, 0) AS operating_margin,
+          revenue / NULLIF(total_assets, 0) AS asset_turnover,
+          total_assets / NULLIF(equity, 0) AS equity_multiplier
+        FROM finance_summary

@@ -1,0 +1,18 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - ISO 27001 Information Security Management (ISO, public summary)
+# - NIST SP 800-60 Vol.1: Guide for Mapping Types of Information (NIST, public)
+# - Data classification frameworks (DAMA-DMBOK2, Chapter 7)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L6 Governance: Data Classification
+classification_levels:
+  - { level: L1_PUBLIC,       label: "Public" }
+  - { level: L2_INTERNAL,     label: "Internal" }
+  - { level: L3_CONFIDENTIAL, label: "Confidential" }
+  - { level: L4_RESTRICTED,   label: "Restricted" }

@@ -1,0 +1,23 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - ISO 3166 Country Codes (ISO, public standard)
+# - UN M49 Standard for geographic regions (unstats.un.org, public)
+# - GeoNames geographical database (geonames.org, Creative Commons)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L3 Dimension: Geography
+dimension:
+  name: enterprise_geo
+  type: hierarchical
+  shared: true
+  hierarchy:
+    levels:
+      - { order: 1, name: country, column: country_name }
+      - { order: 2, name: province, column: province_name, parent: country }
+      - { order: 3, name: city, column: city_name, parent: province }
+  entity_ref: enterprise_dim_geo

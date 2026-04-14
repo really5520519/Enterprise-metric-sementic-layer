@@ -1,0 +1,19 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Cost center hierarchy design (SAP Controlling documentation, public overview)
+# - Management accounting dimensions (Horngren's Cost Accounting, public textbook)
+#
+# This file contains NO proprietary information from any employer or client.
+
+dimension:
+  name: finance_cost_center
+  type: hierarchical
+  hierarchy:
+    levels:
+      - { order: 1, name: company, column: company_code }
+      - { order: 2, name: cost_center, column: cost_center_id, parent: company }
+  entity_ref: dim_cost_center

@@ -1,0 +1,14 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Customer PII protection (GDPR Article 6, EUR-Lex, public law)
+# - Email masking patterns (NIST SP 800-188, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+access_policies:
+  pii_masking: [{ column: customer_email, policy: email_mask }]
+  row_level_security: [{ entity: fact_sales, condition: "region_code IN (SELECT r FROM user_region_access WHERE user=CURRENT_USER())" }]

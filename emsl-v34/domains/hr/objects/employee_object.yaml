@@ -1,0 +1,101 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Employee data model (Workday Community, public documentation)
+# - PII classification for HR data (GDPR Article 9, EUR-Lex, public law)
+# - Dashboard composition patterns (Few, Information Dashboard Design, public textbook)
+# - HR analytics dashboard best practices (Josh Bersin, public research)
+#
+# This file contains NO proprietary information from any employer or client.
+
+object:
+  name: employee
+  domain: hr
+  ontology_class: MasterData
+
+  entity_binding:
+    primary: fact_workforce
+    enrichments:
+      - { entity: dim_employee, join_key: employee_id }
+      - { entity: dim_department, join_key: department_id }
+      - { entity: dim_job_level, join_key: job_level_id }
+      - { entity: dim_region, join_key: region_code }
+
+  metric_refs:
+    - metrics/hr_metrics#headcount
+    - metrics/hr_metrics#fte_count
+    - metrics/hr_metrics#attrition_rate
+    - metrics/hr_metrics#labor_cost_per_employee
+    - metrics/hr_metrics#new_hires
+    - metrics/hr_metrics#terminations
+
+  behaviors:
+    - { trigger: "attrition_risk", method_ref: "analytic_methods/forecasting#attrition_model" }
+    - { trigger: "workforce_planning", method_ref: "analytic_methods/forecasting#demand_forecast" }
+
+  properties:
+    - { name: employee_id, data_type: string, pii: false }
+    - { name: employee_name, data_type: string, pii: true, masking: redact }
+    - { name: email, data_type: string, pii: true, masking: email_mask }
+    - { name: salary, data_type: decimal, pii: true, masking: redact }
+
+  dashboard_hint:
+    title_template: "People analytics: {domain} overview"
+    refresh_grain: daily
+    default_time_range: last_12_months
+    sections:
+      - section: summary
+        layout: scorecard_row
+        metrics:
+          - { ref: headcount, label: "Headcount", comparison: mom }
+          - { ref: fte_count, label: "FTE", comparison: mom }
+          - { ref: attrition_rate, label: "Attrition", comparison: mom, alert: true }
+          - { ref: labor_cost_per_employee, label: "Cost/person", comparison: qoq }
+
+      - section: trends
+        layout: chart_row
+        items:
+          - { metric: headcount, dimensions: [time], grain: month, chart: line_chart, span: 12_months }
+          - { metric: attrition_rate, dimensions: [time], grain: month, chart: line_chart, benchmark_line: 0.08 }
+
+      - section: distribution
+        layout: chart_row
+        items:
+          - { metric: headcount, dimensions: [department], chart: bar_chart, sort: desc, top_n: 10 }
+          - { metric: headcount, dimensions: [department, region], chart: heatmap }
+
+      - section: composition
+        layout: chart_row
+        items:
+          - { metric: headcount, dimensions: [job_level], chart: stacked_bar, stack_by: track }
+          - { metric: headcount, dimensions: [business_line], chart: donut }
+
+      - section: movement
+        layout: chart_row
+        items:
+          - { metric: new_hires, dimensions: [time], grain: month, chart: bar_chart }
+          - { metric: terminations, dimensions: [time], grain: month, chart: bar_chart, color: danger }
+
+      - section: cost
+        layout: chart_row
+        items:
+          - { metric: labor_cost_per_employee, dimensions: [department], chart: bar_chart, sort: desc }
+          - { metric: total_labor_cost, dimensions: [time], grain: quarter, chart: line_chart }
+
+      - section: detail
+        layout: table
+        entity: fact_workforce
+        columns: [employee_id, dept_name, job_level, region, hire_date, status, tenure_months]
+        default_sort: hire_date_desc
+        row_limit: 50
+        pii_respect: true
+        searchable: true
+
+    drill_paths:
+      scorecard_click: "show 12-month trend for clicked metric"
+      bar_segment_click: "filter all sections to clicked category"
+      heatmap_cell_click: "show detail table filtered to department+region"
+      table_row_click: "show employee profile card (with PII masking)"

@@ -1,0 +1,28 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - General ledger data model (SAP FICO documentation, public overview)
+# - Journal entry structure (IFRS Conceptual Framework, public standard)
+# - Chart of accounts design (US GAAP Codification, FASB, public summary)
+#
+# This file contains NO proprietary information from any employer or client.
+
+entity:
+  name: fact_journal_entries
+  type: fact
+  warehouse_layer: DWS
+  database: PROD_DB
+  schema_name: DWS_FINANCE
+  table_name: FACT_JOURNAL_ENTRIES
+  columns:
+    - { name: journal_id, data_type: "VARCHAR(64)", is_pk: true }
+    - { name: posting_date, data_type: DATE, partition: true }
+    - { name: account_id, data_type: "VARCHAR(16)" }
+    - { name: cost_center_id, data_type: "VARCHAR(16)" }
+    - { name: debit_amount, data_type: "DECIMAL(18,2)" }
+    - { name: credit_amount, data_type: "DECIMAL(18,2)" }
+  lineage: { upstream: [{ entity: "ods.erp_gl_entries", transform: "standardize_accounts" }] }
+  quality: { freshness: { update_mode: incremental, schedule: "0 4 * * *", sla_tier: tier_1_critical } }

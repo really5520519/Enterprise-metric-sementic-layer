@@ -1,0 +1,33 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Total compensation components (WorldatWork Total Rewards Model, public framework)
+# - Stock-based compensation accounting (ASC 718, FASB, public standard summary)
+# - Labor cost allocation by department (cost accounting textbooks, public academic)
+#
+# This file contains NO proprietary information from any employer or client.
+
+entity:
+  name: fact_labor_cost
+  type: fact
+  warehouse_layer: DWS
+  database: PROD_DB
+  schema_name: DWH_HR
+  table_name: FACT_LABOR_COST_MONTHLY
+  columns:
+    - { name: cost_month, data_type: DATE, partition: true }
+    - { name: department_id, data_type: "VARCHAR(16)", is_pk: true }
+    - { name: business_line, data_type: "VARCHAR(16)" }
+    - { name: salary_cost, data_type: "DECIMAL(18,2)", classification: L3_CONFIDENTIAL }
+    - { name: bonus_cost, data_type: "DECIMAL(18,2)", classification: L3_CONFIDENTIAL }
+    - { name: equity_cost, data_type: "DECIMAL(18,2)", classification: L3_CONFIDENTIAL }
+    - { name: benefit_cost, data_type: "DECIMAL(18,2)", classification: L3_CONFIDENTIAL }
+    - { name: total_labor_cost, data_type: "DECIMAL(18,2)", classification: L3_CONFIDENTIAL }
+    - { name: headcount, data_type: INTEGER }
+    - { name: fte_count, data_type: "DECIMAL(10,2)" }
+  quality:
+    freshness: { update_mode: incremental, schedule: "0 8 1 * *", sla_tier: tier_2_standard }
+    provenance: { source_system: "SAP FI + Workday Payroll" }

@@ -1,0 +1,102 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+
+# Knowledge sources:
+# - Feature engineering for HR analytics (public ML literature)
+# - High-performance talent identification (Josh Bersin research, public)
+# - Performance management frameworks (SHRM toolkit, public)
+# - scikit-learn feature engineering patterns (BSD license, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+analytic_method:
+  name: high_performance_talent_profile
+  label: "High-performance talent profiling"
+  category: feature_engineering
+  compatible_objects: [employee]
+  description: |
+    Build a feature vector per employee that identifies high-performance patterns.
+    Used as input to attrition_model (who is likely to leave) and promotion_model
+    (who should be considered for advancement).
+
+  trigger_intents:
+    - "who are our top performers"
+    - "talent profile"
+    - "high-potential employees"
+    - "flight risk among top talent"
+    - "regrettable attrition risk"
+
+  feature_engineering:
+    source_entities: [fact_workforce, fact_performance_review, fact_training]
+
+    features:
+      - name: tenure_months
+        expression: "DATEDIFF('month', hire_date, CURRENT_DATE)"
+        category: stability
+        interpretation: "Longer tenure correlates with institutional knowledge"
+
+      - name: promotion_velocity
+        expression: "COUNT(DISTINCT job_level_id) / NULLIF(tenure_months, 0) * 12"
+        category: growth
+        interpretation: "Level changes per year — fast movers are high-potential but flight risk"
+
+      - name: comp_ratio
+        expression: "base_salary / NULLIF(market_median_for_level, 0)"
+        category: compensation
+        interpretation: ">1.0 = above market, <0.8 = underpaid (flight risk)"
+        external_input: { source: "market_salary_survey", field: "median_by_level_and_region" }
+
+      - name: performance_consistency
+        expression: "STDDEV(performance_score) OVER (PARTITION BY employee_id ORDER BY review_date ROWS 4 PRECEDING)"
+        category: performance
+        interpretation: "Low stddev = consistently strong. High stddev = volatile."
+
+      - name: span_of_influence
+        expression: "COUNT(DISTINCT report_id) WHERE manager_id = employee_id"
+        category: leadership
+        interpretation: "Direct reports count. 0 = IC, >7 = significant leadership scope"
+
+      - name: cross_functional_moves
+        expression: "COUNT(DISTINCT department_id) FROM employment_history"
+        category: breadth
+        interpretation: "Moved across departments = broader perspective, higher retention value"
+
+      - name: training_hours_ytd
+        expression: "SUM(training_hours) WHERE year = CURRENT_YEAR"
+        category: development
+        interpretation: "Investment in growth. Low hours for senior staff may indicate disengagement."
+
+      - name: last_raise_months_ago
+        expression: "DATEDIFF('month', last_comp_change_date, CURRENT_DATE)"
+        category: compensation
+        interpretation: ">18 months without raise = increasing flight risk"
+
+    composite_scores:
+      - name: talent_score
+        formula: "0.3 * performance_consistency + 0.2 * promotion_velocity + 0.2 * comp_ratio + 0.15 * cross_functional_moves + 0.15 * training_hours_ytd"
+        normalize: z_score
+        interpretation: ">1.5 = top talent, <-1.0 = performance concern"
+
+      - name: flight_risk_score
+        formula: "0.3 * (1 - comp_ratio) + 0.25 * (last_raise_months_ago / 24) + 0.25 * promotion_velocity + 0.2 * tenure_months_bucket"
+        normalize: min_max_0_1
+        interpretation: ">0.7 = high flight risk, <0.3 = stable"
+
+    output:
+      format: ranked_table
+      columns: [employee_id, department, job_level, talent_score, flight_risk_score, top_3_factors]
+      sort: talent_score_desc
+      visualization: scatter
+      axes: { x: talent_score, y: flight_risk_score, size: tenure_months, color: department }
+      quadrant_labels:
+        top_right: "Stars at risk — retain urgently"
+        top_left: "Stable stars — nurture"
+        bottom_right: "Flight risk but replaceable — monitor"
+        bottom_left: "Stable standard — develop"
+
+  display_hint:
+    primary: scatter
+    alternative: [ranked_table, nine_box_grid]
+    storyline_integration: "Can be step 4 in attrition_deep_dive storyline"

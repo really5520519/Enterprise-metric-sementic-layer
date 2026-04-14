@@ -1,0 +1,22 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Data Warehouse Toolkit, 3rd Ed., Ralph Kimball (Wiley, 2013) — ODS/staging/presentation layers
+# - Building the Data Warehouse, 4th Ed., Bill Inmon (Wiley, 2005) — CIF architecture
+# - Databricks Lakehouse Architecture (databricks.com/glossary, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L1 Entity: Table Catalog
+table_catalog:
+  warehouse_layers:
+    ODS: { label: "Raw/Source",       naming: "ods_{source}_{table}" }
+    DWD: { label: "Detail/Cleansed",  naming: "dwd_{domain}_{entity}_di" }
+    DWS: { label: "Summary/Aggregated", naming: "dws_{domain}_{subject}_{grain}" }
+    ADS: { label: "Application/Report", naming: "ads_{app}_{purpose}" }
+  registration_schema:
+    required: [name, type, warehouse_layer, database, schema_name, table_name, columns]
+    type_enum: [fact, dimension, bridge, aggregate]

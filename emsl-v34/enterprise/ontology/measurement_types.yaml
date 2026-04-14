@@ -1,0 +1,19 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - ISO 4217 Currency Codes (ISO, public standard)
+# - SI Units and measurement type classification (BIPM, public)
+# - Financial data formatting conventions (CFA Institute Standards of Practice)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L0 Ontology: Measurement Types
+measurement_types:
+  - { name: currency,   base_unit: CNY, precision: 2, display: "{value:,.2f}" }
+  - { name: percentage, range: [0,100], precision: 2, display: "{value:.2f}%" }
+  - { name: ratio,      precision: 4, division_guard: "NULLIF(denominator, 0)" }
+  - { name: count,      precision: 0, display: "{value:,.0f}" }
+  - { name: duration,   base_unit: days, precision: 1, display: "{value:.1f} days" }

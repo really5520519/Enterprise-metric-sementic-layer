@@ -1,0 +1,21 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - SLA design patterns for data pipelines (dbt blog, public)
+# - Airflow scheduling and SLA monitoring (airflow.apache.org, public)
+# - Monte Carlo data observability concepts (montecarlodata.com/blog, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L1 Quality: Freshness State (FACT — thresholds live in L6 governance)
+freshness:
+  schema:
+    entity: { type: string, required: true }
+    update_mode: { type: string, enum: [full_load, incremental] }
+    schedule: { type: string, description: "Cron expression" }
+    last_refresh: { type: string, format: datetime }
+    lag_minutes: { type: integer }
+    sla_tier: { type: string, enum: [tier_1_critical, tier_2_standard, tier_3_analytical] }

@@ -1,0 +1,22 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Shapley Value theory (Lloyd Shapley, 1953, public academic paper, Nobel Prize 2012)
+# - Multi-touch attribution models (Google Analytics documentation, public)
+# - Marketing attribution survey (Journal of Marketing Analytics, public academic)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L5 Method: Attribution Analysis
+analytic_method:
+  name: attribution_analysis
+  category: analytics
+  compatible_objects: [order, campaign]
+  trigger_intents: ["channel attribution", "which channel contributed most"]
+  models:
+    - { name: last_touch, type: sql }
+    - { name: shapley,    type: python, entrypoint: "methods.attribution.shapley" }
+  output_format: ranked_table

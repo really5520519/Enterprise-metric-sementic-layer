@@ -1,0 +1,17 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Organizational design (Mintzberg, public academic framework)
+# - Business unit/department taxonomy (US Bureau of Labor Statistics NAICS, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# Cross-cutting: Organization Structure
+org_structure:
+  company: "Acme Corp"
+  hierarchy:
+    - { level: 1, name: business_unit, members: [{id: BU_RETAIL}, {id: BU_CORP}] }
+    - { level: 2, name: department, members: [{id: DEPT_ENG, parent: BU_RETAIL}, {id: DEPT_FIN, parent: BU_CORP}, {id: DEPT_HR, parent: BU_CORP}] }

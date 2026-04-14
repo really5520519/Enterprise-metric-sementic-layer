@@ -1,0 +1,156 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+
+# Knowledge sources:
+# - HR terminology standards (SHRM glossary, shrm.org, public)
+# - Headcount definition (Bureau of Labor Statistics, BLS.gov, public)
+# - Attrition vs turnover distinction (CIPD, cipd.org, public factsheets)
+# - Organizational design (Mintzberg, public academic framework)
+# - Data storytelling (Knaflic, Storytelling with Data, public textbook)
+#
+# This file contains NO proprietary information from any employer or client.
+
+domain_glossary:
+  domain: hr
+
+  terms:
+    - term: headcount
+      aliases: ["HC", "employee count", "head count"]
+      is_golden: true
+      definition: "Active FTE employees on payroll, excluding contractors and interns"
+      semantic_constraints:
+        point_in_time: true
+        snapshot_grain: monthly
+        snapshot_note: "Headcount is a STOCK metric (point-in-time), not a FLOW metric (over period). Always specify the snapshot date."
+        correct_query: "Headcount AS OF 2026-03-31"
+        incorrect_query: "Headcount DURING Q1 2026 (ambiguous — start? end? average?)"
+        convention: "Default to period-end snapshot unless user specifies 'average headcount'"
+
+    - term: attrition_rate
+      aliases: ["turnover rate", "churn rate"]
+      definition: "Period terminations / average headcount"
+      tier_dependency:
+        tier: T2
+        depends_on:
+          - { metric: terminations, tier: T3, note: "COUNT of employees terminated in period" }
+          - { metric: headcount, tier: T3, note: "Period-end or average headcount" }
+        formula: "terminations / headcount"
+        formula_variants:
+          monthly_annualized: "(monthly_terminations / avg_headcount) * 12"
+          quarterly_simple: "quarter_terminations / quarter_end_headcount"
+        disambiguation: "HR uses voluntary-only attrition. Finance uses all-cause attrition. Default to all-cause unless user specifies 'voluntary.'"
+
+    - term: organization_tree
+      aliases: ["org chart", "reporting structure", "org hierarchy"]
+      definition: "Hierarchical structure of reporting relationships"
+      semantic_constraints:
+        point_in_time: true
+        snapshot_note: "Org structure changes over time. Historical queries must use the org tree valid at that date, not current."
+        scd_type: 2
+        implementation: "dim_department and dim_employee both carry SCD2 valid_from/valid_to"
+      hierarchy_levels:
+        - { level: 1, name: company, example: "Acme Corp" }
+        - { level: 2, name: business_unit, example: "Retail BU, Corporate Services BU" }
+        - { level: 3, name: department, example: "Engineering, Sales, HR, Finance" }
+        - { level: 4, name: team, example: "Frontend, Backend, Data, ML" }
+      cross_domain_note: "HR org tree is the authoritative source. Finance uses cost_center which maps to department but adds account-group layer."
+
+    - term: labor_cost
+      aliases: ["total comp cost", "people cost"]
+      definition: "salary + bonus + equity (SBC) + benefits for all active employees"
+
+    - term: new_hires
+      aliases: ["new employees", "joiners"]
+      definition: "Employees whose hire_date falls within the reporting period"
+
+    - term: tenure
+      aliases: ["years of service", "seniority"]
+      definition: "Duration from hire_date to current_date (or termination_date)"
+      semantic_constraints:
+        calculation: "DATEDIFF('month', hire_date, COALESCE(termination_date, CURRENT_DATE))"
+        note: "For terminated employees, tenure is frozen at termination_date"
+
+  storylines:
+    - name: attrition_deep_dive
+      label: "Attrition root cause analysis"
+      trigger_intents: ["why is attrition high", "turnover analysis", "attrition report"]
+      narrative_arc: problem_diagnosis
+      steps:
+        - step: 1
+          name: current_state
+          narrative: "Establish baseline"
+          query: { metric: attrition_rate, grain: current_period }
+          display: scorecard
+          interpretation:
+            good: "Attrition at {value}, below {benchmark} — healthy"
+            warning: "Attrition at {value}, above {benchmark} — needs monitoring"
+            critical: "Attrition at {value}, significantly above {benchmark} — urgent"
+
+        - step: 2
+          name: trend
+          narrative: "Is it getting better or worse?"
+          query: { metric: attrition_rate, dimensions: [time], grain: month, span: 12 }
+          display: line_chart
+          benchmark_line: 0.08
+
+        - step: 3
+          name: segmentation
+          narrative: "Where is the problem concentrated?"
+          query: { metric: attrition_rate, dimensions: [department], grain: quarter }
+          display: bar_chart
+          sort: descending
+          highlight: top_3
+
+        - step: 4
+          name: talent_impact
+          narrative: "Are we losing top talent?"
+          method_ref: "analytic_methods/talent_profile#flight_risk_score"
+          display: scatter
+          filter: "terminated employees in last 6 months"
+          interpretation:
+            regrettable: "{count} of {total} terminated were high-talent (score > 1.5)"
+
+        - step: 5
+          name: root_cause
+          narrative: "What factors correlate with departure?"
+          queries:
+            - { metric: labor_cost_per_employee, dimensions: [department], compare_to: company_avg }
+            - { metric: headcount, dimensions: [department, job_level], display: heatmap }
+          condition: "step 3 found concentration"
+
+        - step: 6
+          name: prediction
+          method_ref: "analytic_methods/forecasting#attrition_model"
+          display: line_chart_with_forecast
+          horizon: 6_months
+
+        - step: 7
+          name: recommendations
+          type: text_with_priorities
+          recommendations:
+            - { condition: "comp_gap > 10%", action: "Market comp review for {dept}", priority: high }
+            - { condition: "regrettable > 30%", action: "Retention program for high-talent", priority: critical }
+            - { condition: "tenure_avg < 12mo", action: "Audit onboarding", priority: high }
+
+    - name: workforce_health_review
+      label: "Monthly people review"
+      trigger_intents: ["monthly HR report", "workforce summary", "people review"]
+      narrative_arc: periodic_review
+      steps:
+        - { step: 1, dashboard_ref: employee, display: dashboard }
+        - { step: 2, queries: [{metric: headcount, comparison: mom}, {metric: attrition_rate, comparison: mom}], display: scorecard }
+        - { step: 3, query: {metric: new_hires, dimensions: [department]}, display: bar_chart }
+        - { step: 4, type: auto_detect, detect: [biggest_change, anomaly, milestone] }
+        - { step: 5, type: action_items }
+
+    - name: cost_efficiency_analysis
+      label: "Labor cost efficiency"
+      trigger_intents: ["labor cost analysis", "cost efficiency", "workforce cost"]
+      narrative_arc: deep_dive
+      steps:
+        - { step: 1, query: {metric: total_labor_cost, dimensions: [time], grain: quarter}, display: line_chart }
+        - { step: 2, queries: [{metric: labor_cost_per_employee, dim: time}, {metric: headcount, dim: time}], display: dual_axis }
+        - { step: 3, query: {metric: labor_cost_per_employee, dimensions: [department]}, display: bar_chart, sort: desc }
+        - { step: 4, query: {metric: "federation/revenue_per_employee", dimensions: [department]}, display: scatter, axes: {x: labor_cost_per_employee, y: revenue_per_employee} }

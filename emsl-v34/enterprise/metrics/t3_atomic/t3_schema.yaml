@@ -1,0 +1,31 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - dbt MetricFlow metric specification (docs.getdbt.com, public)
+# - Cube.js measure types documentation (cube.dev/docs, public)
+# - SQL aggregation functions (SQL:2016 standard, ISO/IEC 9075, public summary)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L4 Metric: T3 Atomic Schema (depends on L1 entity)
+t3_atomic:
+  tier: T3
+  label: "Atomic metric"
+  dependency: none
+  required: [name, aggregation_expression, source_entity]
+  optional:
+    - field: display_hint
+      type: object
+      properties:
+        chart_type: { type: string, enum: [scorecard, time_series, bar_chart] }
+        alert_direction: { type: string, enum: [up_is_good, up_is_bad, context_dependent] }
+        sparkline: { type: boolean, default: false }
+        benchmark: { type: object, properties: { good_below: number, warning_above: number } }
+        comparison_periods: { type: array, items: [mom, qoq, yoy] }
+  examples:
+    - { name: total_gmv,    aggregation_expression: "SUM(gmv)",                 source_entity: fact_sales }
+    - { name: headcount,    aggregation_expression: "COUNT(DISTINCT CASE WHEN status='active' AND employment_type='FTE' THEN employee_id END)", source_entity: fact_workforce }
+    - { name: total_debit,  aggregation_expression: "SUM(debit_amount)",        source_entity: fact_journal_entries }

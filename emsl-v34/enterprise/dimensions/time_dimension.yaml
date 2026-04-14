@@ -1,0 +1,30 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Data Warehouse Toolkit, 3rd Ed., Ralph Kimball (Wiley, 2013) — date dimension design
+# - ISO 8601 Date and Time format (ISO, public standard)
+# - Fiscal calendar design patterns (AccountingTools.com, public articles)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L3 Dimension: Enterprise Time (depends on L1 entity_ref)
+dimension:
+  name: enterprise_time
+  type: time
+  shared: true
+  hierarchy:
+    levels:
+      - { order: 1, name: year, column: year_num }
+      - { order: 2, name: quarter, column: quarter_num, parent: year }
+      - { order: 3, name: month, column: month_num, parent: quarter }
+      - { order: 4, name: week, column: week_of_year, parent: month }
+      - { order: 5, name: day, column: date_key, parent: week }
+  fiscal_calendar: { start_month: 4 }
+  entity_ref: enterprise_dim_date
+  domain_join_protocol:
+    sales: "fact_sales.order_date = date_key"
+    finance: "fact_journal.posting_date = date_key"
+    hr: "fact_workforce.snapshot_month = date_key"

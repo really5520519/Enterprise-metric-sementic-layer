@@ -1,0 +1,42 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Order lifecycle modeling (ecommerce industry patterns, public)
+# - Customer PII handling (GDPR/CCPA, public law)
+#
+# This file contains NO proprietary information from any employer or client.
+
+object: { name: order, domain: sales, ontology_class: TransactionEvent }
+entity_binding:
+  primary: fact_sales
+  enrichments: [{ entity: dim_customer, join_key: customer_id }, { entity: dim_channel, join_key: channel_id }]
+metric_refs: [metrics/sales_metrics#net_revenue, metrics/sales_metrics#aov]
+
+  dashboard_hint:
+    title_template: "Sales performance dashboard"
+    refresh_grain: daily
+    sections:
+      - section: summary
+        layout: scorecard_row
+        metrics:
+          - { ref: net_revenue, label: "Net Revenue", comparison: mom }
+          - { ref: total_gmv, label: "GMV", comparison: mom }
+          - { ref: aov, label: "AOV", comparison: mom }
+          - { ref: order_count, label: "Orders", comparison: mom }
+      - section: trends
+        layout: chart_row
+        items:
+          - { metric: net_revenue, dimensions: [time], grain: day, chart: line_chart, span: 30_days }
+          - { metric: order_count, dimensions: [time], grain: day, chart: bar_chart, span: 30_days }
+      - section: channels
+        layout: chart_row
+        items:
+          - { metric: net_revenue, dimensions: [channel], chart: donut }
+          - { metric: aov, dimensions: [channel], chart: bar_chart, sort: desc }
+      - section: products
+        layout: chart_single
+        items:
+          - { metric: net_revenue, dimensions: [product_category], chart: treemap }

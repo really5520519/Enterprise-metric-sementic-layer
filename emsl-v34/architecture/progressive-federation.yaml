@@ -1,0 +1,75 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - TOGAF 10 Architecture Framework (The Open Group, public standard)
+# - Data Mesh: Delivering Data-Driven Value at Scale, Zhamak Dehghani (O'Reilly, 2022)
+# - Federated Data Governance patterns (DAMA-DMBOK2, Chapter 3)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# ESML v3.3 Progressive Federation Architecture
+esml_architecture:
+  version: "3.4.0"
+  name: "progressive_federation"
+
+  tiers:
+    - tier: enterprise_shared
+      path: "enterprise/"
+      role: "Enterprise shared foundation — ontology, shared dims, governance, knowledge"
+    - tier: domains
+      path: "domains/"
+      role: "Autonomous domain projects, each with L0-L7 layers"
+    - tier: skills
+      path: "skills/"
+      role: "Agent orchestration — W1-W14 workflows + cross-domain skills"
+
+  layer_registry:
+    - { layer: ontology,         priority: 0, label: "L0 Type system" }
+    - { layer: entities,         priority: 1, label: "L1 Physical entity + quality metadata" }
+    - { layer: objects,          priority: 2, label: "L2 Business object envelope" }
+    - { layer: dimensions,       priority: 3, label: "L3 Hierarchical drill paths" }
+    - { layer: metrics,          priority: 4, label: "L4 Formula engine T3-T2-T1" }
+    - { layer: analytic_methods, priority: 5, label: "L5 Algorithm plugins" }
+    - { layer: governance,       priority: 6, label: "L6 Access rules + 5 mechanisms" }
+    - { layer: knowledge,        priority: 7, label: "L7 Business semantics" }
+
+  cross_cutting:
+    - { module: identity,        consumed_by: [L2, L6, skills] }
+    - { module: domain_registry, consumed_by: [skills, L3, L4] }
+
+  metric_tier_convention:
+    T3: { label: "Atomic", dependency: "none", examples: "SUM/COUNT/AVG" }
+    T2: { label: "Derived", dependency: "depends_on T3", examples: "rate/ratio/delta" }
+    T1: { label: "Composite", dependency: "T2+T3 + external + methods", examples: "ROI/LTV/CAC" }
+
+  dependency_rule: "Layer N may only reference layers 0 to N-1. Verified at setup time."
+
+  display_hint_architecture:
+    principle: "Hints describe data shape and business context, never rendering engine or visual style."
+    three_levels:
+      - level: chart
+        location: L4_metric
+        field: display_hint
+        answers: "What shape is this single metric's output?"
+        examples: [time_series, bar_chart, scorecard, heatmap, funnel, scatter]
+      - level: dashboard
+        location: L2_object
+        field: dashboard_hint
+        answers: "How do this object's metrics compose spatially?"
+        examples: [scorecard_row, chart_row, detail_table, funnel_section]
+      - level: storyline
+        location: L7_knowledge
+        field: storylines
+        answers: "How to narrate a multi-step data story?"
+        examples: [problem_diagnosis, periodic_review, deep_dive, executive_briefing]
+    consumer_behavior:
+      - { consumer: "AI Agent (Claude/OpenClaw)", chart: "Recharts", dashboard: "React grid", storyline: "multi-turn chat" }
+      - { consumer: "BI Tool (Tableau/Superset)", chart: "native chart", dashboard: "dashboard tab", storyline: "story tab" }
+      - { consumer: "Slack Bot", chart: "sparkline", dashboard: "card", storyline: "thread sequence" }
+      - { consumer: "Voice Assistant", chart: "speak value+direction", dashboard: "skip", storyline: "narrate steps" }
+      - { consumer: "PDF Report", chart: "static chart", dashboard: "page layout", storyline: "chapters" }
+      - { consumer: "API Consumer", chart: "ignore", dashboard: "JSON sections", storyline: "JSON steps" }
+

@@ -1,0 +1,21 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - Materialized view patterns in Snowflake (docs.snowflake.com, public)
+# - dbt ephemeral models and CTEs (docs.getdbt.com, public)
+# - Query optimization via view pre-compilation (Database Systems, Ramakrishnan & Gehrke)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L1 Entity: Virtual Views
+virtual_views:
+  description: "Pre-compiled cross-entity views. Built at setup, used at query time."
+  schema:
+    name: string
+    base_entity: string
+    joins: { type: array, items: { entity: string, on_clause: string, join_type: string } }
+    compiled_sql: string
+    materialized: { type: boolean, default: false }

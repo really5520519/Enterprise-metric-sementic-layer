@@ -1,0 +1,18 @@
+# Copyright (c) 2026 [YOUR LEGAL ENTITY]
+# Licensed under the Apache License, Version 2.0
+# This file is an original work and is NOT derived from
+# the Open Semantic Interchange (OSI) specification.
+#
+# Knowledge sources:
+# - CMMI Maturity Levels (CMMI Institute, public methodology)
+# - Data Management Maturity Model (DAMA-DMBOK2, Chapter 2)
+# - Progressive rollout patterns (Google SRE, public)
+#
+# This file contains NO proprietary information from any employer or client.
+
+# L6 [M1] Progressive Compliance
+compliance_levels:
+  L0_bootstrap:    { requirements: ["manifest", "1+ entity", "1+ T3 metric"], unlocks: ["single-domain query"], mode: skip }
+  L1_operational:  { requirements: ["+object", "+T2 metrics", "+lineage", "+glossary 5+"], unlocks: ["cross-domain draft", "glossary"], mode: advisory }
+  L2_governed:     { requirements: ["+quality metadata", "+access rules", "+PII masking"], unlocks: ["cross-domain prod", "heartbeat"], mode: enforced_warn }
+  L3_excellence:   { requirements: ["+methods", "+disambiguation", "+full lineage"], unlocks: ["enterprise featuring"], mode: enforced_strict }
