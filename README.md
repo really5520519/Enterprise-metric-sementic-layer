@@ -1,6 +1,6 @@
 <div align="center">
 
-# Enterprise Semantic Metrics Layer (ESML) v3.3
+# Enterprise Metrics Semantic Layer (EMSL) v3.3
 <div align="center">
 
 ### The Open Semantic Layer for Enterprise Metric Systems
